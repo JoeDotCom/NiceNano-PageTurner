@@ -5,10 +5,14 @@ on:
     paths:
       - 'config/**'
       - 'boards/**'
+      - 'build.yaml'
+      - '.github/workflows/build.yml'
   pull_request:
     paths:
       - 'config/**'
       - 'boards/**'
+      - 'build.yaml'
+      - '.github/workflows/build.yml'
   workflow_dispatch:   # Manual trigger from GitHub UI
 
 jobs:

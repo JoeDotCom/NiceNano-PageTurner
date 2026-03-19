@@ -1,3 +1,4 @@
+# ZMK west manifest — points to ZMK main branch
 manifest:
   remotes:
     - name: zmkfirmware
