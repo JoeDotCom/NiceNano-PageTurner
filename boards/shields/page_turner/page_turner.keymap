@@ -7,13 +7,13 @@
  *   1 — SYS      : BT pairing / clear (hold BTN5 to momentarily activate)
  *
  * KEY INDEX MAP (matches overlay kscan input-gpios order)
- *   0 = BTN1 (D0) — Next Page
- *   1 = BTN2 (D1) — Prev Page
- *   2 = BTN3 (D2) — Up
- *   3 = BTN4 (D3) — Down
- *   4 = BTN5 (D4) — Select / Layer-tap (hold = SYS layer)
- *   5 = ENC1 SW   — Encoder 1 click
- *   6 = ENC2 SW   — Encoder 2 click
+ *   0 = BTN1 (pin 008) — Next Page
+ *   1 = BTN2 (pin 017) — Prev Page
+ *   2 = BTN3 (pin 020) — Up
+ *   3 = BTN4 (pin 022) — Down
+ *   4 = BTN5 (pin 024) — Select / Layer-tap (hold = SYS layer)
+ *   5 = ENC1 SW (pin 100) — Encoder 1 click
+ *   6 = ENC2 SW (pin 104) — Encoder 2 click
  *
  * ENCODER MAP
  *   ENC1 CW / CCW → next / prev page  (same as buttons, feel comparison)

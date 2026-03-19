@@ -1,26 +1,34 @@
 /*
- * NiceNano v2 (NRF52840) — Page Turner Shield
+ * ProMicro NRF52840 — Page Turner Shield
  * Breadboard prototype layout
  *
- * WIRING GUIDE (Nice!Nano v2 pin labels → GPIO)
- * ─────────────────────────────────────────────
- *  Pin Label │ GPIO    │ Function
- * ───────────┼─────────┼─────────────────────────────
- *  D0        │ P0.08   │ BTN1 — Next Page      (Right)
- *  D1        │ P0.17   │ BTN2 — Prev Page      (Left)
- *  D2        │ P0.20   │ BTN3 — Up             (Up)
- *  D3        │ P0.22   │ BTN4 — Down           (Down)
- *  D4        │ P0.24   │ BTN5 — Select/Enter
- *  D5        │ P1.00   │ ENC1 SW — Encoder 1 Click
- *  D7        │ P1.04   │ ENC2 SW — Encoder 2 Click
- *  D6        │ P0.11   │ ENC1 A  — Encoder 1 Phase A
- *  D8        │ P1.06   │ ENC1 B  — Encoder 1 Phase B
- *  D9 (SDA)  │ P0.09   │ ENC2 A  — Encoder 2 Phase A
- *  D10 (SCL) │ P0.10   │ ENC2 B  — Encoder 2 Phase B
- *  GND       │ GND     │ All button/encoder common ground
+ * Pin labels on this board ARE the GPIO numbers directly.
+ * e.g. the pad labelled "008" = P0.08, "100" = P1.00, "111" = P1.11
  *
- * All buttons: one leg to pin, other leg to GND (internal pull-up used)
- * EC11 encoders: A → pin, B → pin, common → GND, SW → pin + GND
+ * WIRING GUIDE
+ * ────────────────────────────────────────────────────────────
+ *  Board label │ GPIO    │ Column │ Function
+ * ─────────────┼─────────┼────────┼────────────────────────────
+ *  008          │ P0.08  │ LEFT   │ BTN1 — Next Page   (→)
+ *  017          │ P0.17  │ LEFT   │ BTN2 — Prev Page   (←)
+ *  020          │ P0.20  │ LEFT   │ BTN3 — Up
+ *  022          │ P0.22  │ LEFT   │ BTN4 — Down
+ *  024          │ P0.24  │ LEFT   │ BTN5 — Select / hold = BT layer
+ *  100          │ P1.00  │ LEFT   │ ENC1 SW — Encoder 1 click
+ *  104          │ P1.04  │ LEFT   │ ENC2 SW — Encoder 2 click
+ *  011          │ P0.11  │ LEFT   │ ENC1 A  — Encoder 1 phase A
+ *  111          │ P1.11  │ RIGHT  │ ENC1 B  — Encoder 1 phase B  ← fixed
+ *  029          │ P0.29  │ RIGHT  │ ENC2 A  — Encoder 2 phase A  ← fixed
+ *  010          │ P0.10  │ RIGHT  │ ENC2 B  — Encoder 2 phase B
+ *  GND          │ GND    │ either │ All button/encoder common ground
+ * ────────────────────────────────────────────────────────────
+ *
+ * All pins are on the main through-hole rows — no underside pads needed.
+ *
+ * All buttons: one leg → pin, other leg → GND  (internal pull-up used)
+ * EC11 encoders:  A → pin,  B → pin,  common → GND,  SW → pin + GND
+ *
+ * Tip: pins 031, 002, 115, 113, 006 are free for future use / extra buttons.
  *
  * Adjust pin numbers below if you rewire on the breadboard.
  */
@@ -34,13 +42,13 @@
         label = "KSCAN";
 
         input-gpios
-            = <&gpio0  8 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* D0  — BTN1 Next Page  */
-            , <&gpio0 17 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* D1  — BTN2 Prev Page  */
-            , <&gpio0 20 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* D2  — BTN3 Up         */
-            , <&gpio0 22 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* D3  — BTN4 Down       */
-            , <&gpio0 24 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* D4  — BTN5 Select     */
-            , <&gpio1  0 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* D5  — ENC1 Switch     */
-            , <&gpio1  4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* D7  — ENC2 Switch     */
+            = <&gpio0  8 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* 008 — BTN1 Next Page  */
+            , <&gpio0 17 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* 017 — BTN2 Prev Page  */
+            , <&gpio0 20 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* 020 — BTN3 Up         */
+            , <&gpio0 22 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* 022 — BTN4 Down       */
+            , <&gpio0 24 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* 024 — BTN5 Select     */
+            , <&gpio1  0 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* 100 — ENC1 Switch     */
+            , <&gpio1  4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* 104 — ENC2 Switch     */
             ;
     };
 
@@ -48,18 +56,18 @@
     left_encoder: encoder_left {
         compatible = "alps,ec11";
         label = "LEFT_ENCODER";
-        a-gpios = <&gpio0 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  /* D6 */
-        b-gpios = <&gpio1  6 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  /* D8 */
-        steps = <80>;   /* 20 detents × 4 = 80 steps; tune for your knob */
+        a-gpios = <&gpio0 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  /* 011 — left col  */
+        b-gpios = <&gpio1 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  /* 111 — right col */
+        steps = <80>;   /* 20 detents × 4 = 80; tune for your knob */
         status = "okay";
     };
 
-    /* ── EC11 Encoder 2 — secondary (scroll / brightness / chapter) ── */
+    /* ── EC11 Encoder 2 — secondary (scroll / chapter jump) ── */
     right_encoder: encoder_right {
         compatible = "alps,ec11";
         label = "RIGHT_ENCODER";
-        a-gpios = <&gpio0  9 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  /* D9  / SDA */
-        b-gpios = <&gpio0 10 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  /* D10 / SCL */
+        a-gpios = <&gpio0 29 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  /* 029 — right col */
+        b-gpios = <&gpio0 10 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  /* 010 — right col */
         steps = <80>;
         status = "okay";
     };

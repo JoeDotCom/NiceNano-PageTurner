@@ -1,4 +1,6 @@
 ---
 include:
+  # nice_nano//zmk is the Zephyr 4.x board target syntax (new CMake hardware model).
+  # nice_nano is now built into ZMK's main branch — no nicekeyboards dependency needed.
   - board: nice_nano//zmk
     shield: page_turner

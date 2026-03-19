@@ -1,7 +1,13 @@
-# Nice!Nano Page Turner
-NRF52840 · ZMK firmware · BLE Keyboard HID → Kobo Clara / x4
+# ProMicro NRF52840 Page Turner
+NRF52840 (ProMicro form factor) · ZMK firmware · BLE Keyboard HID → Kobo Clara / x4
 
 Breadboard prototype for testing button + EC11 knob layouts before committing to a PCB.
+
+> **Note on pin labels:** This board labels its pads with raw GPIO numbers directly —
+> `008` = P0.08, `100` = P1.00, `111` = P1.11, etc. No "D0/D1" style aliases.
+> See `boards/shields/page_turner/page_turner.overlay` for exact GPIO assignments.
+
+![Board pinout](promicro-nrf52840-pinout.png)
 
 ---
 
@@ -20,31 +26,34 @@ Breadboard prototype for testing button + EC11 knob layouts before committing to
 
 ## Wiring (breadboard)
 
-```
-Nice!Nano v2                     Buttons (to GND)
-──────────────                   ────────────────
-D0  (P0.08) ──────────────────── BTN1  Next Page  →
-D1  (P0.17) ──────────────────── BTN2  Prev Page  ←
-D2  (P0.20) ──────────────────── BTN3  Up         ↑
-D3  (P0.22) ──────────────────── BTN4  Down       ↓
-D4  (P0.24) ──────────────────── BTN5  Select / hold for BT layer
+Pin labels on this board are the GPIO numbers directly. All pins below are on the
+main through-hole rows — no soldering to underside pads needed.
 
-                                 EC11 Encoder 1  (page turner)
-                                 ─────────────────────────────
-D6  (P0.11) ──────────────────── ENC1 A
-D8  (P1.06) ──────────────────── ENC1 B
-            ENC1 common ──────── GND
-D5  (P1.00) ──────────────────── ENC1 SW (click)
-            ENC1 SW other ─────── GND
-
-                                 EC11 Encoder 2  (scroll / chapter)
-                                 ──────────────────────────────────
-D9  (P0.09) ──────────────────── ENC2 A
-D10 (P0.10) ──────────────────── ENC2 B
-            ENC2 common ──────── GND
-D7  (P1.04) ──────────────────── ENC2 SW (click)
-            ENC2 SW other ─────── GND
 ```
+Board label  Side     →   Connect to
+──────────────────────────────────────────────────────────────────────
+008          LEFT     →   BTN1  one leg  (other leg → GND) — Next Page →
+017          LEFT     →   BTN2  one leg  (other leg → GND) — Prev Page ←
+020          LEFT     →   BTN3  one leg  (other leg → GND) — Up        ↑
+022          LEFT     →   BTN4  one leg  (other leg → GND) — Down      ↓
+024          LEFT     →   BTN5  one leg  (other leg → GND) — Select / hold = BT layer
+
+                          EC11 Encoder 1  (primary page turner)
+                          ──────────────────────────────────────
+011          LEFT     →   ENC1 A
+111          RIGHT    →   ENC1 B
+             (common) →   GND
+100          LEFT     →   ENC1 SW  one leg  (other leg → GND)
+
+                          EC11 Encoder 2  (scroll / chapter jump)
+                          ─────────────────────────────────────────
+029          RIGHT    →   ENC2 A
+010          RIGHT    →   ENC2 B
+             (common) →   GND
+104          LEFT     →   ENC2 SW  one leg  (other leg → GND)
+```
+
+Free through-hole pins for expansion: `006`, `031`, `002`, `115`, `113`
 
 All pin assignments are in `boards/shields/page_turner/page_turner.overlay` — easy to change if you rewire.
 
