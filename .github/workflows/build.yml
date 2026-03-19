@@ -17,4 +17,8 @@ on:
 
 jobs:
   build:
-    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main
+    # Pin workflow to v0.3 to match firmware version in config/west.yml.
+    # The @main workflow uses new Zephyr 4.1 board metadata (qualifiers) that
+    # nice_nano_v2 doesn't have, causing a KeyError crash after a successful build.
+    # When upgrading firmware to v0.4+, change both this and west.yml together.
+    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@v0.3
