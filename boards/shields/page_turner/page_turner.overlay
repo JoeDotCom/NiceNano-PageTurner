@@ -1,0 +1,73 @@
+/*
+ * NiceNano v2 (NRF52840) — Page Turner Shield
+ * Breadboard prototype layout
+ *
+ * WIRING GUIDE (Nice!Nano v2 pin labels → GPIO)
+ * ─────────────────────────────────────────────
+ *  Pin Label │ GPIO    │ Function
+ * ───────────┼─────────┼─────────────────────────────
+ *  D0        │ P0.08   │ BTN1 — Next Page      (Right)
+ *  D1        │ P0.17   │ BTN2 — Prev Page      (Left)
+ *  D2        │ P0.20   │ BTN3 — Up             (Up)
+ *  D3        │ P0.22   │ BTN4 — Down           (Down)
+ *  D4        │ P0.24   │ BTN5 — Select/Enter
+ *  D5        │ P1.00   │ ENC1 SW — Encoder 1 Click
+ *  D7        │ P1.04   │ ENC2 SW — Encoder 2 Click
+ *  D6        │ P0.11   │ ENC1 A  — Encoder 1 Phase A
+ *  D8        │ P1.06   │ ENC1 B  — Encoder 1 Phase B
+ *  D9 (SDA)  │ P0.09   │ ENC2 A  — Encoder 2 Phase A
+ *  D10 (SCL) │ P0.10   │ ENC2 B  — Encoder 2 Phase B
+ *  GND       │ GND     │ All button/encoder common ground
+ *
+ * All buttons: one leg to pin, other leg to GND (internal pull-up used)
+ * EC11 encoders: A → pin, B → pin, common → GND, SW → pin + GND
+ *
+ * Adjust pin numbers below if you rewire on the breadboard.
+ */
+
+#include <dt-bindings/zmk/matrix_transform.h>
+
+/ {
+    /* ── 7 direct-GPIO keys (5 buttons + 2 encoder switches) ── */
+    kscan0: kscan {
+        compatible = "zmk,kscan-gpio-direct";
+        label = "KSCAN";
+
+        input-gpios
+            = <&gpio0  8 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* D0  — BTN1 Next Page  */
+            , <&gpio0 17 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* D1  — BTN2 Prev Page  */
+            , <&gpio0 20 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* D2  — BTN3 Up         */
+            , <&gpio0 22 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* D3  — BTN4 Down       */
+            , <&gpio0 24 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* D4  — BTN5 Select     */
+            , <&gpio1  0 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* D5  — ENC1 Switch     */
+            , <&gpio1  4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* D7  — ENC2 Switch     */
+            ;
+    };
+
+    /* ── EC11 Encoder 1 — primary page turner ── */
+    left_encoder: encoder_left {
+        compatible = "alps,ec11";
+        label = "LEFT_ENCODER";
+        a-gpios = <&gpio0 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  /* D6 */
+        b-gpios = <&gpio1  6 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  /* D8 */
+        steps = <80>;   /* 20 detents × 4 = 80 steps; tune for your knob */
+        status = "okay";
+    };
+
+    /* ── EC11 Encoder 2 — secondary (scroll / brightness / chapter) ── */
+    right_encoder: encoder_right {
+        compatible = "alps,ec11";
+        label = "RIGHT_ENCODER";
+        a-gpios = <&gpio0  9 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  /* D9  / SDA */
+        b-gpios = <&gpio0 10 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  /* D10 / SCL */
+        steps = <80>;
+        status = "okay";
+    };
+
+    /* ── Expose both encoders to ZMK ── */
+    sensors: sensors {
+        compatible = "zmk,keymap-sensors";
+        sensors = <&left_encoder &right_encoder>;
+        triggers-per-rotation = <20>;  /* lower = faster, higher = finer */
+    };
+};

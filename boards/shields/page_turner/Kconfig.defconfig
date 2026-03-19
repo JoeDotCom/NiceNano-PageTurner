@@ -1,0 +1,10 @@
+if SHIELD_PAGE_TURNER
+
+config ZMK_KEYBOARD_NAME
+    default "Page Turner"
+
+# 7 direct-GPIO keys (5 buttons + 2 encoder switches)
+config ZMK_KSCAN_GPIO_POLL_PERIOD_MS
+    default 10   # 10ms poll — snappy on breadboard wiring
+
+endif # SHIELD_PAGE_TURNER

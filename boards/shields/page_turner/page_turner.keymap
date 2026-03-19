@@ -1,0 +1,100 @@
+/*
+ * Page Turner — ZMK Keymap
+ * Target: Kobo Clara / x4 via Bluetooth (appears as BT keyboard)
+ *
+ * LAYERS
+ *   0 — DEFAULT  : standard page turning + navigation
+ *   1 — SYS      : BT pairing / clear (hold BTN5 to momentarily activate)
+ *
+ * KEY INDEX MAP (matches overlay kscan input-gpios order)
+ *   0 = BTN1 (D0) — Next Page
+ *   1 = BTN2 (D1) — Prev Page
+ *   2 = BTN3 (D2) — Up
+ *   3 = BTN4 (D3) — Down
+ *   4 = BTN5 (D4) — Select / Layer-tap (hold = SYS layer)
+ *   5 = ENC1 SW   — Encoder 1 click
+ *   6 = ENC2 SW   — Encoder 2 click
+ *
+ * ENCODER MAP
+ *   ENC1 CW / CCW → next / prev page  (same as buttons, feel comparison)
+ *   ENC2 CW / CCW → scroll down / up  (for menus / long pages)
+ *
+ * KOBO KEY REFERENCE
+ *   Next page : RIGHT arrow  (or Page Down on some firmware)
+ *   Prev page : LEFT arrow   (or Page Up)
+ *   Menu open : UP / tap top of screen
+ *   Back      : ESC
+ *   Select    : ENTER
+ *   Brightness: No standard key — future layer / long-press combo
+ */
+
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
+
+/ {
+    behaviors {
+        /* Layer-tap: tap = ENTER, hold = SYS layer */
+        lt_sys: layer_tap_sys {
+            compatible = "zmk,behavior-hold-tap";
+            label = "LT_SYS";
+            #binding-cells = <2>;
+            flavor = "tap-preferred";
+            tapping-term-ms = <200>;
+            bindings = <&mo>, <&kp>;
+        };
+    };
+
+    keymap {
+        compatible = "zmk,keymap";
+
+        /* ── Layer 0 — DEFAULT ─────────────────────────────────── */
+        default_layer {
+            label = "Default";
+            bindings = <
+                &kp RIGHT           /* BTN1 — Next page      */
+                &kp LEFT            /* BTN2 — Prev page      */
+                &kp UP              /* BTN3 — Up (menus)     */
+                &kp DOWN            /* BTN4 — Down (menus)   */
+                &lt_sys 1 ENTER     /* BTN5 — Select / SYS   */
+                &kp ENTER           /* ENC1 SW — Enter       */
+                &kp ESC             /* ENC2 SW — Back / Esc  */
+            >;
+
+            sensor-bindings = <
+                &inc_dec_kp RIGHT LEFT   /* ENC1 CW=Next, CCW=Prev page */
+                &inc_dec_kp DOWN UP      /* ENC2 CW=Down, CCW=Up scroll */
+            >;
+        };
+
+        /* ── Layer 1 — SYS (BT management) ────────────────────── */
+        /*
+         * Activate by holding BTN5.
+         * While held:
+         *   BTN1 = connect profile 1 (your Kobo)
+         *   BTN2 = connect profile 2 (spare device)
+         *   BTN3 = connect profile 3
+         *   BTN4 = clear current BT profile (use when re-pairing)
+         *   BTN5 = (hold, transparent)
+         *   ENC1 SW = BT next profile
+         *   ENC2 SW = BT prev profile
+         */
+        sys_layer {
+            label = "Sys";
+            bindings = <
+                &bt BT_SEL 0        /* BTN1 — Profile 0 (Kobo) */
+                &bt BT_SEL 1        /* BTN2 — Profile 1        */
+                &bt BT_SEL 2        /* BTN3 — Profile 2        */
+                &bt BT_CLR          /* BTN4 — Clear/unpair     */
+                &trans              /* BTN5 — (held, pass-thru)*/
+                &bt BT_NXT          /* ENC1 SW — Next profile  */
+                &bt BT_PRV          /* ENC2 SW — Prev profile  */
+            >;
+
+            sensor-bindings = <
+                &inc_dec_kp RIGHT LEFT
+                &inc_dec_kp DOWN UP
+            >;
+        };
+    };
+};
