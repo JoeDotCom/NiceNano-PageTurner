@@ -1,4 +1,6 @@
-# ZMK west manifest — points to ZMK main branch
+# ZMK west manifest — pinned to v0.3 (stable, pre-Zephyr 4.1)
+# Stay on v0.3 until ZMK cuts v0.4 with the Zephyr 4.1 migration fully stable.
+# To upgrade later: change revision to the new tag and update board name in build.yaml.
 manifest:
   remotes:
     - name: zmkfirmware
@@ -6,7 +8,7 @@ manifest:
   projects:
     - name: zmk
       remote: zmkfirmware
-      revision: main
+      revision: v0.3
       import: app/west.yml
   self:
     path: config

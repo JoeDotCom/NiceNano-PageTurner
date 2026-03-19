@@ -1,8 +1,6 @@
 ---
 include:
-  # nice_nano//zmk = nice_nano v2 with ZMK variant (Zephyr 4.1+)
-  # The // shorthand means "single SoC, skip the SoC field" = nice_nano/nrf52840/zmk
-  # nice_nano now defaults to v2.0.0; use nice_nano@1.0.0//zmk for v1
-  # See: https://zmk.dev/blog/2025/12/09/zephyr-4-1
-  - board: nice_nano//zmk
+  # nice_nano_v2 = correct board name for ZMK v0.3 (pre-Zephyr 4.1)
+  # When upgrading to v0.4+, change to: nice_nano//zmk
+  - board: nice_nano_v2
     shield: page_turner
