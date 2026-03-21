@@ -40,10 +40,10 @@ Board label  Side     →   Connect to
 
                           EC11 Encoder 1  (primary page turner)
                           ──────────────────────────────────────
-011          LEFT     →   ENC1 A
-111          RIGHT    →   ENC1 B
-             (common) →   GND
-100          LEFT     →   ENC1 SW  one leg  (other leg → GND)
+011          LEFT     →   ENC1 A  (3-pin side, outer)
+100          LEFT     →   ENC1 B  (3-pin side, outer)
+             (common) →   GND     (3-pin side, centre)
+111          RIGHT    →   ENC1 SW  one leg  (2-pin side, other leg → GND)
 
                           EC11 Encoder 2  (scroll / chapter jump)
                           ─────────────────────────────────────────

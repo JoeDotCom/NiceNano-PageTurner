@@ -14,10 +14,10 @@
  *  020          │ P0.20  │ LEFT   │ BTN3 — Up
  *  022          │ P0.22  │ LEFT   │ BTN4 — Down
  *  024          │ P0.24  │ LEFT   │ BTN5 — Select / hold = BT layer
- *  100          │ P1.00  │ LEFT   │ ENC1 SW — Encoder 1 click
+ *  111          │ P1.11  │ RIGHT  │ ENC1 SW — Encoder 1 click
  *  104          │ P1.04  │ LEFT   │ ENC2 SW — Encoder 2 click
  *  011          │ P0.11  │ LEFT   │ ENC1 A  — Encoder 1 phase A
- *  111          │ P1.11  │ RIGHT  │ ENC1 B  — Encoder 1 phase B  ← fixed
+ *  100          │ P1.00  │ LEFT   │ ENC1 B  — Encoder 1 phase B
  *  029          │ P0.29  │ RIGHT  │ ENC2 A  — Encoder 2 phase A  ← fixed
  *  010          │ P0.10  │ RIGHT  │ ENC2 B  — Encoder 2 phase B
  *  GND          │ GND    │ either │ All button/encoder common ground
@@ -63,7 +63,7 @@
             , <&gpio0 20 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* 020 — BTN3 Up         */
             , <&gpio0 22 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* 022 — BTN4 Down       */
             , <&gpio0 24 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* 024 — BTN5 Select     */
-            , <&gpio1  0 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* 100 — ENC1 Switch     */
+            , <&gpio1 11 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* 111 — ENC1 Switch     */
             , <&gpio1  4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  /* 104 — ENC2 Switch     */
             ;
     };
@@ -72,8 +72,8 @@
     left_encoder: encoder_left {
         compatible = "alps,ec11";
         label = "LEFT_ENCODER";
-        a-gpios = <&gpio0 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  /* 011 — left col  */
-        b-gpios = <&gpio1 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  /* 111 — right col */
+        a-gpios = <&gpio0 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  /* 011 — rotation A */
+        b-gpios = <&gpio1  0 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  /* 100 — rotation B */
         steps = <80>;   /* 20 detents × 4 = 80; tune for your knob */
         status = "okay";
     };
