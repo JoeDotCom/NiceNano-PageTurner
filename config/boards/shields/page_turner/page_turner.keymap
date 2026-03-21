@@ -71,9 +71,9 @@
         /*
          * Activate by holding BTN5.
          * While held:
-         *   BTN1 = connect profile 1 (your Kobo)
-         *   BTN2 = connect profile 2 (spare device)
-         *   BTN3 = connect profile 3
+         *   BTN1 = connect profile 0 (your Kobo)
+         *   BTN2 = connect profile 1 (spare device)
+         *   BTN3 = BOOTLOADER — enters flash mode (NICENANO drive appears)
          *   BTN4 = clear current BT profile (use when re-pairing)
          *   BTN5 = (hold, transparent)
          *   ENC1 SW = BT next profile
@@ -82,13 +82,13 @@
         sys_layer {
             label = "Sys";
             bindings = <
-                &bt BT_SEL 0        /* BTN1 — Profile 0 (Kobo) */
-                &bt BT_SEL 1        /* BTN2 — Profile 1        */
-                &bt BT_SEL 2        /* BTN3 — Profile 2        */
-                &bt BT_CLR          /* BTN4 — Clear/unpair     */
-                &trans              /* BTN5 — (held, pass-thru)*/
-                &bt BT_NXT          /* ENC1 SW — Next profile  */
-                &bt BT_PRV          /* ENC2 SW — Prev profile  */
+                &bt BT_SEL 0        /* BTN1 — Profile 0 (Kobo)       */
+                &bt BT_SEL 1        /* BTN2 — Profile 1               */
+                &bootloader         /* BTN3 — Flash mode              */
+                &bt BT_CLR          /* BTN4 — Clear/unpair            */
+                &trans              /* BTN5 — (held, pass-thru)       */
+                &bt BT_NXT          /* ENC1 SW — Next profile         */
+                &bt BT_PRV          /* ENC2 SW — Prev profile         */
             >;
 
             sensor-bindings = <
