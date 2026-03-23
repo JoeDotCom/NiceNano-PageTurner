@@ -1,6 +1,6 @@
 /*
  * Page Turner — ZMK Keymap
- * Target: Kobo Clara / x4 via Bluetooth (appears as BT keyboard)
+ * Target: Kobo / x4 via Bluetooth (appears as BT keyboard)
  *
  * LAYERS
  *   0 — DEFAULT  : standard page turning + navigation
@@ -12,12 +12,21 @@
  *   2 = BTN3 (pin 020) — Up
  *   3 = BTN4 (pin 022) — Down
  *   4 = BTN5 (pin 024) — Select / Layer-tap (hold = SYS layer)
- *   5 = ENC1 SW (pin 100) — Encoder 1 click
+ *   5 = ENC1 SW (pin 111) — Encoder 1 click
  *   6 = ENC2 SW (pin 104) — Encoder 2 click
  *
  * ENCODER MAP
  *   ENC1 CW / CCW → next / prev page  (same as buttons, feel comparison)
  *   ENC2 CW / CCW → scroll down / up  (for menus / long pages)
+ *
+ * SYS LAYER (hold BTN5)
+ *   BTN1 → Profile 0  — LED blinks 1×
+ *   BTN2 → Profile 1  — LED blinks 2×
+ *   BTN3 → Profile 2  — LED blinks 3×
+ *   BTN4 → Clear / unpair current profile
+ *   BTN5 → (held, transparent)
+ *   ENC1 SW → Bootloader (flash mode — or just double-press reset on board)
+ *   ENC2 SW → BT previous profile
  *
  * KOBO KEY REFERENCE
  *   Next page : RIGHT arrow  (or Page Down on some firmware)
@@ -25,12 +34,12 @@
  *   Menu open : UP / tap top of screen
  *   Back      : ESC
  *   Select    : ENTER
- *   Brightness: No standard key — future layer / long-press combo
  */
 
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/backlight.h>
 
 / {
     behaviors {
@@ -42,6 +51,76 @@
             flavor = "tap-preferred";
             tapping-term-ms = <200>;
             bindings = <&mo>, <&kp>;
+        };
+    };
+
+    /*
+     * Profile-switch macros — each selects the BT profile then blinks the
+     * onboard LED N times so you know which profile is now active.
+     *
+     * Timing: &macro_wait_time sets the delay applied BEFORE the next action.
+     *   100 ms pause after BT_SEL (gives radio a moment to switch)
+     *   250 ms on / 250 ms off per blink — visible but not slow
+     */
+    macros {
+        /* Profile 0 — 1 blink */
+        prof0: prof0 {
+            compatible = "zmk,behavior-macro";
+            label = "PROF_0";
+            #binding-cells = <0>;
+            wait-ms = <0>;
+            tap-ms = <5>;
+            bindings
+                = <&bt BT_SEL 0>
+                , <&macro_wait_time 100>
+                , <&bl BL_ON>
+                , <&macro_wait_time 250>
+                , <&bl BL_OFF>
+                ;
+        };
+
+        /* Profile 1 — 2 blinks */
+        prof1: prof1 {
+            compatible = "zmk,behavior-macro";
+            label = "PROF_1";
+            #binding-cells = <0>;
+            wait-ms = <0>;
+            tap-ms = <5>;
+            bindings
+                = <&bt BT_SEL 1>
+                , <&macro_wait_time 100>
+                , <&bl BL_ON>
+                , <&macro_wait_time 250>
+                , <&bl BL_OFF>
+                , <&macro_wait_time 250>
+                , <&bl BL_ON>
+                , <&macro_wait_time 250>
+                , <&bl BL_OFF>
+                ;
+        };
+
+        /* Profile 2 — 3 blinks */
+        prof2: prof2 {
+            compatible = "zmk,behavior-macro";
+            label = "PROF_2";
+            #binding-cells = <0>;
+            wait-ms = <0>;
+            tap-ms = <5>;
+            bindings
+                = <&bt BT_SEL 2>
+                , <&macro_wait_time 100>
+                , <&bl BL_ON>
+                , <&macro_wait_time 250>
+                , <&bl BL_OFF>
+                , <&macro_wait_time 250>
+                , <&bl BL_ON>
+                , <&macro_wait_time 250>
+                , <&bl BL_OFF>
+                , <&macro_wait_time 250>
+                , <&bl BL_ON>
+                , <&macro_wait_time 250>
+                , <&bl BL_OFF>
+                ;
         };
     };
 
@@ -68,26 +147,15 @@
         };
 
         /* ── Layer 1 — SYS (BT management) ────────────────────── */
-        /*
-         * Activate by holding BTN5.
-         * While held:
-         *   BTN1 = connect profile 0 (your Kobo)
-         *   BTN2 = connect profile 1 (spare device)
-         *   BTN3 = BOOTLOADER — enters flash mode (NICENANO drive appears)
-         *   BTN4 = clear current BT profile (use when re-pairing)
-         *   BTN5 = (hold, transparent)
-         *   ENC1 SW = BT next profile
-         *   ENC2 SW = BT prev profile
-         */
         sys_layer {
             label = "Sys";
             bindings = <
-                &bt BT_SEL 0        /* BTN1 — Profile 0 (Kobo)       */
-                &bt BT_SEL 1        /* BTN2 — Profile 1               */
-                &bootloader         /* BTN3 — Flash mode              */
+                &prof0              /* BTN1 — Profile 0 (1 blink)     */
+                &prof1              /* BTN2 — Profile 1 (2 blinks)    */
+                &prof2              /* BTN3 — Profile 2 (3 blinks)    */
                 &bt BT_CLR          /* BTN4 — Clear/unpair            */
                 &trans              /* BTN5 — (held, pass-thru)       */
-                &bt BT_NXT          /* ENC1 SW — Next profile         */
+                &bootloader         /* ENC1 SW — Flash mode           */
                 &bt BT_PRV          /* ENC2 SW — Prev profile         */
             >;
 

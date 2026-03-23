@@ -94,4 +94,20 @@
         sensors = <&left_encoder &right_encoder>;
         triggers-per-rotation = <20>;  /* lower = faster, higher = finer */
     };
+
+    /* ── Backlight LED — used for profile-switch blink feedback ── */
+    /* Nice!Nano v2 onboard blue LED is on P0.15.                   */
+    /* If the build fails with a GPIO conflict, the board's own     */
+    /* led_0 node is already using this pin — comment it out here   */
+    /* and file a note; we'll alias the board node instead.         */
+    backlight: gpioleds {
+        compatible = "gpio-leds";
+        led_0: back_led_0 {
+            gpios = <&gpio0 15 GPIO_ACTIVE_HIGH>;
+        };
+    };
+
+    chosen {
+        zmk,backlight = &backlight;
+    };
 };
