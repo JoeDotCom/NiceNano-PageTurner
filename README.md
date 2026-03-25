@@ -1,5 +1,5 @@
 # ProMicro NRF52840 Page Turner
-NRF52840 (ProMicro form factor) · ZMK firmware · BLE Keyboard HID → Kobo Clara / x4
+NRF52840 (Nice!Nano v2, ProMicro form factor) · ZMK firmware · BLE Keyboard HID → e-reader
 
 Breadboard prototype for testing button + EC11 knob layouts before committing to a PCB.
 
@@ -19,8 +19,13 @@ Breadboard prototype for testing button + EC11 knob layouts before committing to
 | EC11 rotary encoder | 1–2 | Any standard EC11 with switch |
 | Momentary push button | 4–5 | 6mm tactile switches work great on breadboard |
 | 10kΩ resistor (optional) | — | Not needed — internal pull-ups are used |
+| LiPo battery | 1 | Nice!Nano has onboard charger. 100mAh gives ~10–20 hrs with sleep disabled. |
+| Battery switch (recommended) | 1 | Small slide switch on battery + lead — hardware off when not in use |
 | Breadboard + jumper wires | — | — |
-| LiPo battery (optional) | 1 | Nice!Nano has onboard charger |
+
+> **Battery note:** Deep sleep is disabled in this firmware to prevent the reader dropping
+> the BLE connection mid-session. A hardware switch on the battery positive lead is the
+> recommended way to preserve battery when the device is packed away.
 
 ---
 
@@ -61,7 +66,9 @@ All pin assignments are in `boards/shields/page_turner/page_turner.overlay` — 
 
 ## Controls
 
-| Input | Action on Kobo |
+### Default layer
+
+| Input | Action on reader |
 |---|---|
 | BTN1 | Next page (→) |
 | BTN2 | Prev page (←) |
@@ -76,16 +83,34 @@ All pin assignments are in `boards/shields/page_turner/page_turner.overlay` — 
 | ENC2 rotate CCW | Scroll up |
 | ENC2 click | Escape / Back |
 
-### BT Layer (hold BTN5)
+### SYS layer (hold BTN5)
 
-| Input | Action |
-|---|---|
-| BTN1 | Connect profile 0 (your Kobo) |
-| BTN2 | Connect profile 1 |
-| BTN3 | Connect profile 2 |
-| BTN4 | **Clear/unpair** current profile |
-| ENC1 click | Next BT profile |
-| ENC2 click | Prev BT profile |
+| Input | Action | LED feedback |
+|---|---|---|
+| BTN1 | Switch to BT profile 0 | 1 blink |
+| BTN2 | Switch to BT profile 1 | 2 blinks |
+| BTN3 | Switch to BT profile 2 | 3 blinks |
+| BTN4 | Clear / unpair current profile | — |
+| ENC1 click | Enter bootloader (flash mode) | — |
+| ENC2 click | Previous BT profile | — |
+
+> **Flash mode tip:** Holding BTN5 + clicking ENC1 enters the bootloader and mounts the
+> `NICENANO` drive on your computer. Alternatively, double-press the physical reset button
+> on the board — this always works regardless of firmware state.
+
+---
+
+## BT Profiles
+
+Up to 3 devices can be paired simultaneously (profiles 0–2). The LED blinks tell you
+which profile is active after switching:
+
+- **1 blink** = Profile 0
+- **2 blinks** = Profile 1
+- **3 blinks** = Profile 2
+
+To pair a new device to a profile: hold BTN5 → tap BTN4 (clear current profile) →
+then pair from the new device's Bluetooth settings.
 
 ---
 
@@ -93,10 +118,11 @@ All pin assignments are in `boards/shields/page_turner/page_turner.overlay` — 
 
 ### Option A — GitHub Actions (recommended, no toolchain setup)
 
-1. Fork / push this repo to GitHub.
-2. Actions → Build ZMK firmware → Run workflow.
+1. Push changes to GitHub.
+2. Actions → Build ZMK firmware → Run workflow (or push triggers it automatically).
 3. Download the `firmware.zip` artifact.
-4. Flash `page_turner-nice_nano_v2-zmk.uf2` by double-pressing reset (bootloader mode) and dragging onto the `NICENANO` drive.
+4. Enter bootloader (hold BTN5 + click ENC1, or double-press reset button).
+5. Drag `page_turner-nice_nano_v2-zmk.uf2` onto the `NICENANO` drive.
 
 ### Option B — Local build
 
@@ -108,20 +134,42 @@ west build -s zmk/app -b nice_nano_v2 -- -DSHIELD=page_turner
 
 ---
 
-## Pairing with Kobo
+## Pairing with your reader
 
-1. Flash firmware. Nice!Nano LED will blink rapidly = advertising.
-2. On Kobo: Settings → Accessibility → External keyboard → pair.
-3. If re-pairing: hold BTN5 → tap BTN4 (clear profile) → restart Kobo BT.
+1. Flash firmware. Nice!Nano will advertise over BLE.
+2. On reader: Settings → Accessibility → External keyboard → pair.
+3. The device supports up to 3 paired profiles (see SYS layer above).
+
+---
+
+## Firmware notes
+
+### BLE keep-alive
+ZMK's default 30-second idle timeout renegotiates BLE connection parameters when it
+fires. Some readers drop the connection when this happens. This firmware sets the idle
+timeout to 1 hour and disables deep sleep entirely so the connection stays stable
+throughout a reading session.
+
+### Encoder reliability
+The EC11 encoder uses its own dedicated processing thread (`OWN_THREAD`) rather than
+ZMK's global thread. This prevents encoder pulses being dropped when BLE events are
+being processed, eliminating the occasional missed page turn.
+
+### Profile LED feedback
+Switching BT profiles (hold BTN5 + BTN1/2/3) blinks the onboard LED N times to confirm
+which profile is now active. The LED node is declared in `page_turner.overlay` using
+GPIO0 pin 15 (Nice!Nano v2 onboard blue LED).
 
 ---
 
 ## Tuning tips
 
-- **Encoder too sensitive/slow?** Adjust `triggers-per-rotation` in `page_turner.overlay` (lower = faster).
+- **Encoder direction reversed?** Swap `a-gpios` and `b-gpios` in `page_turner.overlay`, or swap `RIGHT`/`LEFT` in the `inc_dec_kp` sensor bindings in the keymap.
+- **Encoder too sensitive/slow?** Adjust `triggers-per-rotation` in `page_turner.overlay` (lower = one keypress per fewer detents = faster).
 - **Bouncy buttons on breadboard?** Increase `ZMK_KSCAN_DEBOUNCE_PRESS_MS` in `page_turner.conf`.
-- **Want PgUp/PgDn instead of arrow keys?** Swap `RIGHT`/`LEFT` for `PG_DN`/`PG_UP` in the keymap — test which Kobo responds to better.
-- **Only using 1 encoder?** Comment out `right_encoder` in the overlay and remove it from `sensors`.
+- **Want PgUp/PgDn instead of arrow keys?** Swap `RIGHT`/`LEFT` for `PG_DN`/`PG_UP` in the keymap.
+- **Only using 1 encoder?** Comment out `right_encoder` in the overlay and remove it from the `sensors` node.
+- **Battery life too short?** Re-enable `CONFIG_ZMK_SLEEP=y` and set `CONFIG_ZMK_IDLE_SLEEP_TIMEOUT` — the reader will occasionally need a manual reconnect after idle periods. Or add a hardware power switch on the battery lead.
 
 ---
 
@@ -130,14 +178,12 @@ west build -s zmk/app -b nice_nano_v2 -- -DSHIELD=page_turner
 ```
 NiceNano-PageTurner/
 ├── config/
-│   ├── west.yml            ← ZMK source manifest
-│   └── build.yaml          ← board + shield selection
-├── boards/shields/page_turner/
-│   ├── page_turner.overlay ← GPIO pin assignments (edit this for rewiring)
-│   ├── page_turner.keymap  ← all keybindings and layers
-│   ├── page_turner.conf    ← encoder + debounce settings
-│   ├── Kconfig.shield      ← shield name declaration
-│   └── Kconfig.defconfig   ← keyboard name + poll config
-└── .github/workflows/
-    └── build.yml           ← GitHub Actions CI build
+│   ├── west.yml                    ← ZMK source manifest
+│   └── build.yaml                  ← board + shield selection (nice_nano_v2)
+└── config/boards/shields/page_turner/
+    ├── page_turner.overlay         ← GPIO pin assignments + backlight LED
+    ├── page_turner.keymap          ← all keybindings, layers, and profile macros
+    ├── page_turner.conf            ← encoder, BLE keep-alive, and LED settings
+    ├── Kconfig.shield              ← shield name declaration
+    └── Kconfig.defconfig           ← keyboard name + poll config
 ```
